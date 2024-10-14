@@ -1,0 +1,313 @@
+package br.gov.dataprev.dbloreanapp.test;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.ArrayList;
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+public class AppAgenda extends JFrame {
+
+	private static final long serialVersionUID = 1L;
+	private JPanel contentPane;
+	private JList<String> listContatos;
+	private DefaultListModel<String> listModel;
+	private ArrayList<Contato> contatos; // Lista de contatos
+	private JTable tableDadosBasicos;
+	private DefaultTableModel tableModel;
+	private JTextArea textAreaObservacoes; // Área de texto para observações
+	private JButton btnAssociarDados; // Botão para salvar os dados associados
+	private JButton btnSalvarEmJson; // Botão para salvar os dados em JSON
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					AgendaTelaApp frame = new AgendaTelaApp();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public AppAgenda() {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		setSize(600, 400);
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+		contatos = new ArrayList<>(); // Lista de contatos
+
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+
+		JMenu mnNewMenu = new JMenu("Arquivo");
+		menuBar.add(mnNewMenu);
+
+		// JMenuItem para abrir arquivo JSON
+		JMenuItem mntmNewMenuItem_1 = new JMenuItem("Abrir");
+		mntmNewMenuItem_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				abrirArquivoJson();
+			}
+		});
+		mnNewMenu.add(mntmNewMenuItem_1);
+
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+		setContentPane(contentPane);
+		GridBagLayout gbl_contentPane = new GridBagLayout();
+		gbl_contentPane.columnWidths = new int[] { 0, 0, 0, 0 };
+		gbl_contentPane.rowHeights = new int[] { 0, 0, 0, 0, 0 }; // Adicionando mais uma linha para os botões
+		gbl_contentPane.columnWeights = new double[] { 1.0, 0.0, 1.0, Double.MIN_VALUE };
+		gbl_contentPane.rowWeights = new double[] { 1.0, 0.0, 0.0, Double.MIN_VALUE };
+		contentPane.setLayout(gbl_contentPane);
+
+		JPanel panel = new JPanel();
+		GridBagConstraints gbc_panel = new GridBagConstraints();
+		gbc_panel.fill = GridBagConstraints.BOTH;
+		gbc_panel.insets = new Insets(0, 0, 5, 5);
+		gbc_panel.gridx = 0;
+		gbc_panel.gridy = 0;
+		contentPane.add(panel, gbc_panel);
+		GridBagLayout gbl_panel = new GridBagLayout();
+		gbl_panel.columnWidths = new int[] { 0, 0 };
+		gbl_panel.rowHeights = new int[] { 0, 0 };
+		gbl_panel.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
+		gbl_panel.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
+		panel.setLayout(gbl_panel);
+
+		// Lista de contatos
+		listModel = new DefaultListModel<>();
+		listContatos = new JList<>(listModel);
+		listContatos.setBorder(BorderFactory.createTitledBorder(new LineBorder(Color.black, 1, true), "Contatos"));
+		GridBagConstraints gbc_list = new GridBagConstraints();
+		gbc_list.fill = GridBagConstraints.BOTH;
+		gbc_list.gridx = 0;
+		gbc_list.gridy = 0;
+		panel.add(listContatos, gbc_list);
+
+		// Botão de adicionar novo contato
+		JButton btnNewButton = new JButton("+");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				adicionarContato();
+			}
+		});
+		btnNewButton.setPreferredSize(new Dimension(45, 45));
+		GridBagConstraints gbc_btnNewButton = new GridBagConstraints();
+		gbc_btnNewButton.anchor = GridBagConstraints.NORTH;
+		gbc_btnNewButton.insets = new Insets(0, 0, 5, 5);
+		gbc_btnNewButton.gridx = 1;
+		gbc_btnNewButton.gridy = 0;
+		contentPane.add(btnNewButton, gbc_btnNewButton);
+
+		// Botão de salvar dados em arquivo JSON
+		btnSalvarEmJson = new JButton("Salvar em JSON");
+		btnSalvarEmJson.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				salvarDadosEmJson();
+			}
+		});
+
+		GridBagConstraints gbc_btnSalvarEmJson = new GridBagConstraints();
+		gbc_btnSalvarEmJson.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnSalvarEmJson.insets = new Insets(0, 0, 0, 5);
+		gbc_btnSalvarEmJson.gridx = 0;
+		gbc_btnSalvarEmJson.gridy = 1;
+		contentPane.add(btnSalvarEmJson, gbc_btnSalvarEmJson);
+
+		// TabbedPane para exibir os dados dos contatos
+		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		GridBagConstraints gbc_tabbedPane = new GridBagConstraints();
+		gbc_tabbedPane.insets = new Insets(0, 0, 5, 0);
+		gbc_tabbedPane.fill = GridBagConstraints.BOTH;
+		gbc_tabbedPane.gridx = 2;
+		gbc_tabbedPane.gridy = 0;
+		gbc_tabbedPane.gridheight = 2; // TabbedPane ocupa 2 linhas
+		contentPane.add(tabbedPane, gbc_tabbedPane);
+
+		// Aba para dados básicos com JTable
+		tableModel = new DefaultTableModel(new Object[][] {}, new String[] { "Nome", "Telefone", "Email" });
+		tableDadosBasicos = new JTable(tableModel);
+		tabbedPane.addTab("Dados Básicos", new JScrollPane(tableDadosBasicos));
+
+		// Aba para observações com JTextArea
+		textAreaObservacoes = new JTextArea();
+		tabbedPane.addTab("Observações", new JScrollPane(textAreaObservacoes));
+
+		// Botão "Associar Dados" para associar os dados ao contato
+		btnAssociarDados = new JButton("Associar Dados");
+		btnAssociarDados.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				associarDadosContato();
+			}
+		});
+		GridBagConstraints gbc_btnAssociarDados = new GridBagConstraints();
+		gbc_btnAssociarDados.insets = new Insets(0, 0, 0, 0); // Sem espaçamento extra
+		gbc_btnAssociarDados.fill = GridBagConstraints.HORIZONTAL; // Preenche horizontalmente
+		gbc_btnAssociarDados.gridx = 2; // Na mesma coluna que o tabbedPane
+		gbc_btnAssociarDados.gridy = 2; // Nova linha abaixo do tabbedPane
+		contentPane.add(btnAssociarDados, gbc_btnAssociarDados);
+
+		// Listener para seleção de contatos
+		listContatos.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent e) {
+				if (!e.getValueIsAdjusting()) {
+					int selectedIndex = listContatos.getSelectedIndex();
+					if (selectedIndex != -1) {
+						mostrarDetalhesContato(contatos.get(selectedIndex));
+					}
+				}
+			}
+		});
+	}
+
+	// Função para adicionar um contato
+	private void adicionarContato() {
+		String nome = JOptionPane.showInputDialog("Incluir Contato: Nome");
+		if (nome != null && !nome.trim().isEmpty()) {
+			Contato novoContato = new Contato(nome, "", "");
+			contatos.add(novoContato);
+			listModel.addElement(nome);
+		}
+	}
+
+	// Função para mostrar os detalhes do contato na JTable
+	private void mostrarDetalhesContato(Contato contato) {
+		tableModel.setRowCount(0); // Limpa a tabela
+		tableModel.addRow(new Object[] { contato.getNome(), contato.getTelefone(), contato.getEmail() });
+		textAreaObservacoes.setText(contato.getObservacoes()); // Exibir as observações
+	}
+
+	// Função para salvar os dados das abas associando ao contato selecionado
+	private void associarDadosContato() {
+		int selectedIndex = listContatos.getSelectedIndex();
+		if (selectedIndex != -1) {
+			Contato contato = contatos.get(selectedIndex);
+
+			// Atualizar os dados do contato com as informações da tabela e observações
+			contato.setTelefone((String) tableModel.getValueAt(0, 1)); // Coluna Telefone
+			contato.setEmail((String) tableModel.getValueAt(0, 2)); // Coluna Email
+			contato.setObservacoes(textAreaObservacoes.getText()); // Observações
+
+			listModel.set(selectedIndex, contato.getNome());
+
+			JOptionPane.showMessageDialog(this, "Dados salvos para o contato: " + contato.getNome());
+		}
+	}
+
+	// Função para salvar os contatos em um arquivo JSON
+	private void salvarDadosEmJson() {
+		JSONArray jsonArray = new JSONArray();
+		for (Contato contato : contatos) {
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("nome", contato.getNome());
+			jsonObject.put("telefone", contato.getTelefone());
+			jsonObject.put("email", contato.getEmail());
+			jsonObject.put("observacoes", contato.getObservacoes());
+			jsonArray.put(jsonObject);
+		}
+
+		try (FileWriter file = new FileWriter("contatos.json")) {
+			file.write(jsonArray.toString(4)); // Escreve o JSON com indentação
+			JOptionPane.showMessageDialog(this, "Dados salvos em contatos.json");
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(this, "Erro ao salvar dados: " + e.getMessage());
+		}
+	}
+
+	// Função para abrir um arquivo JSON e carregar os contatos
+	private void abrirArquivoJson() {
+		JFileChooser fileChooser = new JFileChooser();
+		int returnValue = fileChooser.showOpenDialog(this);
+		if (returnValue == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fileChooser.getSelectedFile();
+			try (FileReader reader = new FileReader(selectedFile)) {
+				JSONTokener tokener = new JSONTokener(reader);
+				JSONArray jsonArray = new JSONArray(tokener);
+
+				contatos.clear();
+				listModel.clear();
+
+				for (int i = 0; i < jsonArray.length(); i++) {
+					JSONObject jsonObject = jsonArray.getJSONObject(i);
+					String nome = jsonObject.getString("nome");
+					String telefone = jsonObject.getString("telefone");
+					String email = jsonObject.getString("email");
+					String observacoes = jsonObject.getString("observacoes");
+
+					Contato contato = new Contato(nome, telefone, email);
+					contato.setObservacoes(observacoes);
+					contatos.add(contato);
+					listModel.addElement(nome);
+				}
+
+				JOptionPane.showMessageDialog(this, "Arquivo carregado com sucesso!");
+
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(this, "Erro ao abrir arquivo: " + e.getMessage());
+			}
+		}
+	}
+
+	// Classe interna Contato
+	class Contato {
+		private String nome;
+		private String telefone;
+		private String email;
+		private String observacoes;
+
+		public Contato(String nome, String telefone, String email) {
+			this.nome = nome;
+			this.telefone = telefone;
+			this.email = email;
+			this.observacoes = "";
+		}
+
+		public String getNome() {
+			return nome;
+		}
+
+		public String getTelefone() {
+			return telefone;
+		}
+
+		public String getEmail() {
+			return email;
+		}
+
+		public String getObservacoes() {
+			return observacoes;
+		}
+
+		public void setTelefone(String telefone) {
+			this.telefone = telefone;
+		}
+
+		public void setEmail(String email) {
+			this.email = email;
+		}
+
+		public void setObservacoes(String observacoes) {
+			this.observacoes = observacoes;
+		}
+	}
+}
