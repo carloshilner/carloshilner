@@ -1,0 +1,79 @@
+package br.gov.dataprev.dbloreanapp.v01;
+
+import java.util.ArrayList;
+import java.util.List;
+
+class Contato {
+    private String nome;
+    private String email;
+    private String observacoes;
+    private List<Telefone> telefones; // Lista de telefones
+
+    public Contato(String nome) {
+        this.nome = nome;
+        this.telefones = new ArrayList<>();
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getObservacoes() {
+        return observacoes;
+    }
+
+    public void setObservacoes(String observacoes) {
+        this.observacoes = observacoes;
+    }
+
+    public List<Telefone> getTelefones() {
+        return telefones;
+    }
+
+    public void adicionarTelefone(Telefone telefone) {
+        this.telefones.add(telefone);
+    }
+
+    public void removerTelefone(Telefone telefone) {
+        this.telefones.remove(telefone);
+    }
+}
+
+
+
+
+
+
+
+
+package br.gov.dataprev.dbloreanapp.v01;
+
+class Telefone {
+	private String numero;
+	private String tipo;
+
+	public Telefone(String numero, String tipo) {
+		this.numero = numero;
+		this.tipo = tipo;
+	}
+
+	public String getNumero() {
+		return numero;
+	}
+
+	public String getTipo() {
+		return tipo;
+	}
+}
