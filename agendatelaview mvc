@@ -1,0 +1,35 @@
+import javax.swing.*;
+import java.awt.*;
+
+public class AgendaTelaView extends JFrame {
+    private JTextField textFieldNome;
+    private JTextField textFieldTelefone;
+    private JTextField textFieldEmail;
+    private JTextArea textAreaObservacoes;
+    private JTable tableTelefones;
+    private DefaultTableModel tableModel;
+    private DefaultListModel<String> listModel;
+    private JList<String> listContatos;
+    private JButton btnSalvarEmJson, btnAssociarDados, btnAdicionarTelefone, btnRemoverTelefone;
+
+    public AgendaTelaView() {
+        // Configuração da View (mesmo código da interface gráfica)
+    }
+
+    // Métodos para acessar os componentes da UI (getters)
+    public JTextField getTextFieldNome() { return textFieldNome; }
+    public JTextField getTextFieldTelefone() { return textFieldTelefone; }
+    public JTextField getTextFieldEmail() { return textFieldEmail; }
+    public JTextArea getTextAreaObservacoes() { return textAreaObservacoes; }
+    public JTable getTableTelefones() { return tableTelefones; }
+    public JList<String> getListContatos() { return listContatos; }
+    public JButton getBtnSalvarEmJson() { return btnSalvarEmJson; }
+    public JButton getBtnAssociarDados() { return btnAssociarDados; }
+    public JButton getBtnAdicionarTelefone() { return btnAdicionarTelefone; }
+    public JButton getBtnRemoverTelefone() { return btnRemoverTelefone; }
+
+    // Método para exibir a janela
+    public void showView() {
+        setVisible(true);
+    }
+}
