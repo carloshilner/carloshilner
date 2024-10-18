@@ -1,0 +1,59 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class AgendaController {
+    private AgendaTelaView view;
+    private ArrayList<Contato> contatos;
+
+    public AgendaController(AgendaTelaView view) {
+        this.view = view;
+        this.contatos = new ArrayList<>();
+        
+        // Adiciona listeners aos botões
+        this.view.getBtnAdicionarTelefone().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                adicionarTelefone();
+            }
+        });
+
+        this.view.getBtnAssociarDados().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                salvarDadosContato();
+            }
+        });
+
+        // Outros listeners...
+    }
+
+    // Método para adicionar um telefone
+    private void adicionarTelefone() {
+        String numero = view.getTextFieldTelefone().getText();
+        String tipo = (String) view.getTableTelefones().getModel().getValueAt(0, 1); // Exemplo para capturar o tipo
+
+        if (!numero.isEmpty() && tipo != null) {
+            Telefone novoTelefone = new Telefone(numero, tipo);
+            // Supondo que tenha um contato selecionado
+            int selectedIndex = view.getListContatos().getSelectedIndex();
+            if (selectedIndex != -1) {
+                Contato contato = contatos.get(selectedIndex);
+                contato.adicionarTelefone(novoTelefone);
+                // Atualiza a tabela de telefones
+                ((DefaultTableModel) view.getTableTelefones().getModel()).addRow(new Object[]{numero, tipo});
+            }
+        }
+    }
+
+    // Método para salvar o contato
+    private void salvarDadosContato() {
+        int selectedIndex = view.getListContatos().getSelectedIndex();
+        if (selectedIndex != -1) {
+            Contato contato = contatos.get(selectedIndex);
+            contato.setNome(view.getTextFieldNome().getText());
+            contato.setEmail(view.getTextFieldEmail().getText());
+            contato.setObservacoes(view.getTextAreaObservacoes().getText());
+            // Salva outros dados...
+        }
+    }
+}
