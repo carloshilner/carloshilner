@@ -264,19 +264,18 @@ public class AgendaTelaApp extends JFrame {
 		}
 	}
 
-	private void associarDados() {
+	private void associarDadosContato() {
 		int selectedIndex = listContatos.getSelectedIndex();
 		if (selectedIndex != -1) {
 			Contato contato = contatos.get(selectedIndex);
-
 			// Atualiza os dados do contato com as informações dos JTextFields
-			contato.setNome(textFieldNome.getText());
+	        String novoNome = textFieldNome.getText();
+			contato.setNome(novoNome);
 			contato.setEmail(textFieldEmail.getText());
 			contato.setObservacoes(textAreaObservacoes.getText());
-
+	 	       listModel.setElementAt(novoNome, selectedIndex);
 //			contato.setTelefone(textFieldTelefone.getText());
 //			contato.setTipoTelefone((String) comboBoxTipoTelefone.getSelectedItem()); // Salvar o tipo de telefone
-
 			JOptionPane.showMessageDialog(this, "Dados salvos para o contato: " + contato.getNome());
 		}
 	}
