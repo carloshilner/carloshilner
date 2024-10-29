@@ -1,0 +1,12 @@
+private void associarDadosContato() {
+		int selectedIndex = listContatos.getSelectedIndex();
+		if (selectedIndex != -1) {
+			Contato contato = contatos.get(selectedIndex);
+			// Atualiza os dados do contato com as informações dos JTextFields
+			contato.setNome(textFieldNome.getText());
+			contato.setEmail(textFieldEmail.getText());
+			contato.setObservacoes(textAreaObservacoes.getText());
+			listModel.set(selectedIndex, contato.getNome());
+			JOptionPane.showMessageDialog(this, "Dados salvos para o contato: " + contato.getNome());
+		}
+	}
